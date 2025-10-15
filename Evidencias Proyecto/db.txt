@@ -1,0 +1,118 @@
+-- #############################################################################
+-- PASO 1: ELIMINAR TABLAS EXISTENTES (en orden inverso de dependencia)
+-- Esto asegura que no haya problemas con las claves foráneas al eliminar.
+-- #############################################################################
+
+IF OBJECT_ID('Imagenes_Publicaciones', 'U') IS NOT NULL DROP TABLE Imagenes_Publicaciones;
+IF OBJECT_ID('Certificaciones', 'U') IS NOT NULL DROP TABLE Certificaciones;
+IF OBJECT_ID('Publicaciones', 'U') IS NOT NULL DROP TABLE Publicaciones;
+IF OBJECT_ID('Chats', 'U') IS NOT NULL DROP TABLE Chats;
+IF OBJECT_ID('Valoraciones', 'U') IS NOT NULL DROP TABLE Valoraciones;
+IF OBJECT_ID('Oficio', 'U') IS NOT NULL DROP TABLE Oficio;
+IF OBJECT_ID('Portafolio', 'U') IS NOT NULL DROP TABLE Portafolio;
+IF OBJECT_ID('Perfil', 'U') IS NOT NULL DROP TABLE Perfil;
+IF OBJECT_ID('Usuarios', 'U') IS NOT NULL DROP TABLE Usuarios;
+GO
+
+-- #############################################################################
+-- PASO 2: CREAR TABLAS (en orden de dependencia)
+-- Se crean las tablas, definiendo claves primarias autoincrementales
+-- y claves foráneas.
+-- #############################################################################
+
+-- Tabla Usuarios (central, no depende de otras)
+CREATE TABLE [Usuarios] (
+  [id_usuario] INT IDENTITY(1,1) PRIMARY KEY,
+  [rut] nvarchar(255),
+  [nombres] nvarchar(255),
+  [primer_apellido] nvarchar(255),
+  [segundo_apellido] nvarchar(255),
+  [correo] nvarchar(255),
+  [direccion] nvarchar(255),
+  [rol] nvarchar(255),
+  [estado] nvarchar(255),
+  [fecha_creacion] datetime
+);
+GO
+
+-- Tabla Certificaciones (FK a Usuarios)
+CREATE TABLE [Certificaciones] (
+  [id_certificacion] INT IDENTITY(1,1) PRIMARY KEY,
+  [id_usuario] integer,
+  [nombre_certificacion] nvarchar(255),
+  [fecha_creacion] datetime,
+  FOREIGN KEY ([id_usuario]) REFERENCES [Usuarios]([id_usuario])
+);
+GO
+
+-- Tabla Publicaciones (FK a Usuarios)
+CREATE TABLE [Publicaciones] (
+  [id_publicacion] INT IDENTITY(1,1) PRIMARY KEY,
+  [id_usuario] integer,
+  [titulo] nvarchar(255),
+  [imagenes] varbinary(MAX),
+  [fecha_creacion] datetime,
+  FOREIGN KEY ([id_usuario]) REFERENCES [Usuarios]([id_usuario])
+);
+GO
+
+-- Tabla Chats (FK a Usuarios)
+CREATE TABLE [Chats] (
+  [id_chat] INT IDENTITY(1,1) PRIMARY KEY,
+  [id_usuario_creador] integer,
+  [titulo] nvarchar(255),
+  [imagenes] varbinary(MAX),
+  [fecha_creacion] datetime,
+  FOREIGN KEY ([id_usuario_creador]) REFERENCES [Usuarios]([id_usuario])
+);
+GO
+
+-- Tabla Valoraciones (FK a Usuarios)
+CREATE TABLE [Valoraciones] (
+  [id_valoración] INT IDENTITY(1,1) PRIMARY KEY,
+  [id_usuario] integer,
+  [titulo] nvarchar(255),
+  [comentario] nvarchar(MAX),
+  [puntaje] integer,
+  [fecha_creacion] datetime,
+  FOREIGN KEY ([id_usuario]) REFERENCES [Usuarios]([id_usuario])
+);
+GO
+
+-- Tabla Oficio (FK a Usuarios)
+CREATE TABLE [Oficio] (
+  [id_oficio] INT IDENTITY(1,1) PRIMARY KEY,
+  [nombre_oficio] nvarchar(255),
+  [id_usuario] INT,
+  FOREIGN KEY ([id_usuario]) REFERENCES [Usuarios]([id_usuario])
+);
+GO
+
+-- Tabla Portafolio (FK a Usuarios)
+CREATE TABLE [Portafolio] (
+  [id_portafolio] INT IDENTITY(1,1) PRIMARY KEY,
+  [descripcion] nvarchar(MAX),
+  [enlace] nvarchar(MAX),
+  [id_usuario] INT,
+  FOREIGN KEY ([id_usuario]) REFERENCES [Usuarios]([id_usuario])
+);
+GO
+
+-- Tabla Perfil (FK a Usuarios)
+CREATE TABLE [Perfil] (
+  [id_perfil] INT IDENTITY(1,1) PRIMARY KEY,
+  [descripcion] nvarchar(MAX),
+  [biografia] nvarchar(MAX),
+  [id_usuario] INT,
+  FOREIGN KEY ([id_usuario]) REFERENCES [Usuarios]([id_usuario])
+);
+GO
+
+-- Tabla Imagenes_Publicaciones (FK a Publicaciones)
+CREATE TABLE [Imagenes_Publicaciones] (
+  [id_imagen] INT IDENTITY(1,1) PRIMARY KEY,
+  [id_publicacion] integer,
+  [imagen_data] varbinary(MAX),
+  FOREIGN KEY ([id_publicacion]) REFERENCES [Publicaciones]([id_publicacion])
+);
+GO
